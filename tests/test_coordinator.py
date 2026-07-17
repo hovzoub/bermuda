@@ -7,8 +7,62 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from custom_components.bermuda.const import ADDR_TYPE_IBEACON, CONF_AREA_ENTITIES, CONF_DEVICES, DOMAIN
+from custom_components.bermuda.const import (
+    ADDR_TYPE_IBEACON,
+    ADDR_TYPE_PRIVATE_BLE_DEVICE,
+    CONF_AREA_ENTITIES,
+    CONF_DEVICES,
+    DOMAIN,
+    IrkTypes,
+)
 from custom_components.bermuda.coordinator import BermudaDataUpdateCoordinator
+
+
+def _private_only_coordinator() -> BermudaDataUpdateCoordinator:
+    """Build the minimal coordinator state needed by the ingest filter."""
+    coordinator = object.__new__(BermudaDataUpdateCoordinator)
+    coordinator.private_ble_only = True
+    coordinator.metadevices = {}
+    coordinator.pb_state_sources = {}
+    coordinator.irk_manager = MagicMock()
+    return coordinator
+
+
+def test_private_ble_only_is_opt_in() -> None:
+    """Normal mode keeps the existing ingest behaviour."""
+    coordinator = _private_only_coordinator()
+    coordinator.private_ble_only = False
+
+    assert coordinator._should_ingest_advert("AA:BB:CC:DD:EE:FF") is True
+    coordinator.irk_manager.check_mac.assert_not_called()
+
+
+def test_private_ble_only_rejects_public_and_unknown_rotating_addresses() -> None:
+    """Private-only mode rejects ordinary and unmatched rotating devices."""
+    coordinator = _private_only_coordinator()
+    coordinator.irk_manager.check_mac.return_value = IrkTypes.NO_KNOWN_IRK_MATCH.value
+
+    assert coordinator._should_ingest_advert("AA:BB:CC:DD:EE:FF") is False
+    assert coordinator._should_ingest_advert("45:22:33:44:55:66") is False
+    coordinator.irk_manager.check_mac.assert_called_once_with("45:22:33:44:55:66")
+
+
+def test_private_ble_only_accepts_irk_matches_and_current_sources() -> None:
+    """Known IRKs and their already-associated rotating addresses remain active."""
+    coordinator = _private_only_coordinator()
+    coordinator.irk_manager.check_mac.return_value = bytes.fromhex("11" * 16)
+
+    assert coordinator._should_ingest_advert("45:22:33:44:55:66") is True
+
+    coordinator.irk_manager.check_mac.reset_mock()
+    coordinator.metadevices = {
+        "private-id": SimpleNamespace(
+            address_type=ADDR_TYPE_PRIVATE_BLE_DEVICE,
+            metadevice_sources=["45:AA:BB:CC:DD:EE"],
+        )
+    }
+    assert coordinator._should_ingest_advert("45:AA:BB:CC:DD:EE") is True
+    coordinator.irk_manager.check_mac.assert_not_called()
 
 
 def test_dump_devices_includes_private_ble_current_addresses() -> None:

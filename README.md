@@ -167,6 +167,7 @@ tuned afterwards via **Configure**:
 | `max_area_radius` | 20 m | Beyond this distance a scanner can't claim the device for its Area. |
 | `devtracker_nothome_timeout` | 30 s | How long unseen before the device_tracker flips to not_home. |
 | `update_interval` | 10 s | Sensor rate-limit interval (internal processing stays ~1 s). |
+| `private_ble_only` | Off | Ignore ordinary BLE devices and fully process only known IRK-backed Private BLE devices. This reduces work in dense BLE environments but disables iBeacon, category and conventional MAC tracking while enabled. |
 | `smoothing_samples` | 20 | Window of the distance-smoothing average. |
 | `max_velocity` | 3 m/s | Readings implying faster retreat are rejected as noise. |
 | Area presence entities | — | Motion/contact/etc. entities whose Area, while *on*, competes with BLE at a per-entity "virtual distance". |

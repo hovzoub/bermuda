@@ -45,12 +45,14 @@ from .bermuda_irk import BermudaIrkManager
 from .const import (
     _LOGGER,
     _LOGGER_SPAM_LESS,
+    ADDR_TYPE_PRIVATE_BLE_DEVICE,
     CONF_ADDRESS,
     CONF_ATTENUATION,
     CONF_DEVICES,
     CONF_DEVTRACK_TIMEOUT,
     CONF_MAX_RADIUS,
     CONF_MAX_VELOCITY,
+    CONF_PRIVATE_BLE_ONLY,
     CONF_REF_POWER,
     CONF_RSSI_OFFSET,
     CONF_RSSI_OFFSETS,
@@ -64,6 +66,7 @@ from .const import (
     DEFAULT_DEVTRACK_TIMEOUT,
     DEFAULT_MAX_RADIUS,
     DEFAULT_MAX_VELOCITY,
+    DEFAULT_PRIVATE_BLE_ONLY,
     DEFAULT_REF_POWER,
     DEFAULT_SMOOTHING_SAMPLES,
     DEFAULT_UPDATE_INTERVAL,
@@ -77,6 +80,7 @@ from .const import (
     SUBENTRY_TYPE_CALIBRATION,
     SUBENTRY_TYPE_DEVICE,
     UPDATE_INTERVAL,
+    IrkTypes,
 )
 from .coordinator_metadevices import BermudaMetadeviceMixin
 from .coordinator_microlocation import BermudaMicrolocationMixin
@@ -85,7 +89,7 @@ from .manufacturers import load_manufacturer_ids, lookup_manufacturer
 from .pruning import prune_devices as _prune_devices
 from .redaction import redact_value, update_redaction_list
 from .trilateration import refresh_area_by_min_distance
-from .util import mac_norm
+from .util import address_is_resolvable, mac_norm
 
 if TYPE_CHECKING:
     from habluetooth import BaseHaScanner, BluetoothServiceInfoBleak
@@ -122,6 +126,7 @@ class BermudaDataUpdateCoordinator(
     ) -> None:
         """Initialize."""
         self.sensor_interval = entry.options.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)
+        self.private_ble_only = bool(entry.options.get(CONF_PRIVATE_BLE_ONLY, DEFAULT_PRIVATE_BLE_ONLY))
 
         # ##### Redaction Data ###
         #
@@ -702,10 +707,39 @@ class BermudaDataUpdateCoordinator(
                     # BlueZ is pushing bogus adverts for paired but absent devices.
                     continue
 
+                if not self._should_ingest_advert(bledevice.address):
+                    continue
                 device = self._get_or_create_device(bledevice.address)
                 device.process_advertisement(scanner_device, advertisementdata)
 
         # end of for ha_scanner loop
+
+    def _should_ingest_advert(self, address: str) -> bool:
+        """
+        Return whether an advertisement should become a full Bermuda device.
+
+        Private-BLE-only mode still examines resolvable private addresses so the
+        IRK manager can identify a rotating address, but it avoids allocating a
+        BermudaDevice (and per-scanner advert history) for non-matches.
+        """
+        if not getattr(self, "private_ble_only", False):
+            return True
+
+        normalized = mac_norm(address)
+        private_sources = {
+            mac_norm(source)
+            for metadevice in self.metadevices.values()
+            if metadevice.address_type == ADDR_TYPE_PRIVATE_BLE_DEVICE
+            for source in metadevice.metadevice_sources
+        }
+        private_sources.update(mac_norm(source) for source in self.pb_state_sources.values() if source is not None)
+        if normalized in private_sources:
+            return True
+
+        if not address_is_resolvable(normalized):
+            return False
+
+        return self.irk_manager.check_mac(normalized) not in IrkTypes.unresolved()
 
     def prune_devices(self, *, force_pruning: bool = False) -> None:
         """Remove stale devices to keep the device dict bounded (see pruning module)."""

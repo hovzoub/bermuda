@@ -84,7 +84,9 @@ async def test_options_flow(hass: HomeAssistant, setup_bermuda_entry: MockConfig
     flat = dict(MOCK_OPTIONS_GLOBALS)
     nested = {
         "distance_model": {k: flat[k] for k in ("ref_power", "attenuation", "max_area_radius") if k in flat},
-        "tracking": {k: flat[k] for k in ("devtracker_nothome_timeout", "update_interval") if k in flat},
+        "tracking": {
+            k: flat[k] for k in ("devtracker_nothome_timeout", "update_interval", "private_ble_only") if k in flat
+        },
         "smoothing": {k: flat[k] for k in ("smoothing_samples", "max_velocity") if k in flat},
     }
     result = await hass.config_entries.options.async_configure(result["flow_id"], user_input=nested)

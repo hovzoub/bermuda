@@ -265,10 +265,12 @@
           },
           "tracking": {
             "data": {
+              "private_ble_only": "Private BLE devices only",
               "devtracker_nothome_timeout": "Délai d'expiration Devtracker en secondes pour considérer un appareil comme `Absent`.",
               "update_interval": "Intervalle de mise à jour — À quelle fréquence (en secondes) mettre à jour les lectures des capteurs."
             },
             "data_description": {
+              "private_ble_only": "Only retain scanners and rotating addresses that match enrolled Private BLE Device IRKs. Ordinary BLE discovery, iBeacons, item trackers and nearby-device listings are disabled.",
               "devtracker_nothome_timeout": "Combien de temps attendre avant de marquer les entités device_tracker comme `absent` après avoir cessé de voir les annonces. 30 à 300 secondes est probablement une bonne valeur.",
               "update_interval": "Le raccourcissement des distances déclenchera toujours immédiatement, mais l'augmentation des distances sera limitée par cela pour réduire la croissance de votre base de données."
             },
