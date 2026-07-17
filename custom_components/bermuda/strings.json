@@ -151,10 +151,12 @@
             "name": "Device tracking",
             "description": "How long until a device is reported Not Home, and how often sensors refresh.",
             "data": {
+              "private_ble_only": "Private BLE devices only",
               "devtracker_nothome_timeout": "Devtracker Timeout in seconds to consider a device as `Not Home`.",
               "update_interval": "Update Interval - How often (in seconds) to update sensor readings."
             },
             "data_description": {
+              "private_ble_only": "Only retain scanners and rotating addresses that match enrolled Private BLE Device IRKs. Ordinary BLE discovery, iBeacons, item trackers and nearby-device listings are disabled.",
               "devtracker_nothome_timeout": "How quickly to mark device_tracker entities as `not_home` after we stop seeing advertisements. 30 to 300 seconds is probably good.",
               "update_interval": "Shortening distances will still trigger immediately, but increasing distances will be rate limited by this to reduce how much your database grows."
             }

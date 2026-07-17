@@ -265,10 +265,12 @@
           },
           "tracking": {
             "data": {
+              "private_ble_only": "Private BLE devices only",
               "devtracker_nothome_timeout": "Devtracker time-out in seconden om een apparaat als `Afwezig` te beschouwen.",
               "update_interval": "Updateinterval - Hoe vaak (in seconden) de sensormetingen worden bijgewerkt."
             },
             "data_description": {
+              "private_ble_only": "Only retain scanners and rotating addresses that match enrolled Private BLE Device IRKs. Ordinary BLE discovery, iBeacons, item trackers and nearby-device listings are disabled.",
               "devtracker_nothome_timeout": "Hoe snel device_tracker-entiteiten als `not_home` worden gemarkeerd nadat we geen advertenties meer zien. 30 tot 300 seconden is waarschijnlijk een goede waarde.",
               "update_interval": "Afnemende afstanden worden nog steeds meteen bijgewerkt, maar toenemende afstanden worden hierdoor beperkt om de groei van je database te verminderen."
             },

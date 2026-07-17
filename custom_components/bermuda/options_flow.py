@@ -43,6 +43,7 @@ from .const import (
     CONF_IRK,
     CONF_MAX_RADIUS,
     CONF_MAX_VELOCITY,
+    CONF_PRIVATE_BLE_ONLY,
     CONF_REF_POWER,
     CONF_SMOOTHING_SAMPLES,
     CONF_TRACK_CATEGORIES,
@@ -52,6 +53,7 @@ from .const import (
     DEFAULT_DEVTRACK_TIMEOUT,
     DEFAULT_MAX_RADIUS,
     DEFAULT_MAX_VELOCITY,
+    DEFAULT_PRIVATE_BLE_ONLY,
     DEFAULT_REF_POWER,
     DEFAULT_SMOOTHING_SAMPLES,
     DEFAULT_UPDATE_INTERVAL,
@@ -276,6 +278,10 @@ class BermudaOptionsFlowHandler(OptionsFlow):
                 vol.Required("tracking"): section(
                     vol.Schema(
                         {
+                            vol.Required(
+                                CONF_PRIVATE_BLE_ONLY,
+                                default=bool(self.options.get(CONF_PRIVATE_BLE_ONLY, DEFAULT_PRIVATE_BLE_ONLY)),
+                            ): BooleanSelector(),
                             vol.Required(
                                 CONF_DEVTRACK_TIMEOUT, default=_opt(CONF_DEVTRACK_TIMEOUT, DEFAULT_DEVTRACK_TIMEOUT)
                             ): _int(OPT_MIN_DEVTRACK_TIMEOUT),

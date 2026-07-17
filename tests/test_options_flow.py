@@ -35,6 +35,7 @@ from custom_components.bermuda.const import (
     CONF_IRK,
     CONF_MAX_RADIUS,
     CONF_MAX_VELOCITY,
+    CONF_PRIVATE_BLE_ONLY,
     CONF_REF_POWER,
     CONF_SMOOTHING_SAMPLES,
     CONF_TRACK_CATEGORIES,
@@ -113,7 +114,7 @@ def _nest_globals(flat: dict) -> dict:
     """Wrap flat global options into the collapsible-section structure the form expects."""
     groups = {
         "distance_model": (CONF_REF_POWER, CONF_ATTENUATION, CONF_MAX_RADIUS),
-        "tracking": (CONF_DEVTRACK_TIMEOUT, CONF_UPDATE_INTERVAL),
+        "tracking": (CONF_DEVTRACK_TIMEOUT, CONF_UPDATE_INTERVAL, CONF_PRIVATE_BLE_ONLY),
         "smoothing": (CONF_SMOOTHING_SAMPLES, CONF_MAX_VELOCITY),
     }
     return {section: {k: flat[k] for k in keys if k in flat} for section, keys in groups.items()}

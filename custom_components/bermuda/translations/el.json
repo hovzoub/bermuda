@@ -265,10 +265,12 @@
           },
           "tracking": {
             "data": {
+              "private_ble_only": "Private BLE devices only",
               "devtracker_nothome_timeout": "Χρονικό όριο Devtracker σε δευτερόλεπτα για να θεωρηθεί μια συσκευή `Εκτός σπιτιού`.",
               "update_interval": "Διάστημα ενημέρωσης - Πόσο συχνά (σε δευτερόλεπτα) να ενημερώνονται οι μετρήσεις των αισθητήρων."
             },
             "data_description": {
+              "private_ble_only": "Only retain scanners and rotating addresses that match enrolled Private BLE Device IRKs. Ordinary BLE discovery, iBeacons, item trackers and nearby-device listings are disabled.",
               "devtracker_nothome_timeout": "Πόσο γρήγορα να επισημαίνονται οι οντότητες device_tracker ως `not_home` αφού σταματήσουμε να βλέπουμε διαφημίσεις. 30 έως 300 δευτερόλεπτα είναι πιθανώς καλή τιμή.",
               "update_interval": "Οι μειώσεις απόστασης θα ενεργοποιούνται πάντα άμεσα, αλλά οι αυξήσεις απόστασης θα περιορίζονται από αυτό ώστε να μειωθεί η αύξηση της βάσης δεδομένων σας."
             },
